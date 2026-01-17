@@ -14,7 +14,7 @@
         </p>
         <div class="bg-indigo-500/20 border border-indigo-500/50 rounded-lg p-3 max-w-2xl mx-auto mt-4">
             <p class="text-indigo-300 text-sm">
-                <strong>Tokenizer:</strong> {{ tokenizer_info.tokenizer }}
+                <strong>Tokenizer:</strong> {{ tokenizer_name }}
             </p>
         </div>
     </div>
@@ -44,12 +44,6 @@
                 class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-emerald-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 Compress & Compare
-            </button>
-            <button 
-                id="download-tokens-btn" 
-                class="px-6 py-3 bg-slate-700/50 hover:bg-slate-600/50 text-slate-200 font-semibold rounded-lg border border-slate-600/50 transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed hidden"
-            >
-                Download Tokens as JSON
             </button>
         </div>
     </div>
@@ -139,19 +133,23 @@
     const codeInput = document.getElementById('code-input');
     const tokenizeBtn = document.getElementById('tokenize-btn');
     const compressBtn = document.getElementById('compress-btn');
-    const downloadTokensBtn = document.getElementById('download-tokens-btn');
     const originalTokensDisplay = document.getElementById('original-tokens-display');
     const compressedTokensDisplay = document.getElementById('compressed-tokens-display');
 
-    function renderTokens(tokens, container, isCompressed = false) {
-        if (!tokens || tokens.length === 0) {
+    function renderTokens(code, token_starts, container, isCompressed=false) {
+        console.log(token_starts);
+
+        if (token_starts.length === 0) {
             container.innerHTML = '<div class="text-slate-400 text-center p-8"><p>No tokens to display</p></div>';
             return;
         }
 
         const bubbleClass = isCompressed ? 'token-bubble token-bubble-compressed' : 'token-bubble';
-        container.innerHTML = tokens.map(token => 
-            `<span class="${bubbleClass}" title="${escapeHtml(token)}">${escapeHtml(token)}</span>`
+        container.innerHTML = token_starts.map(
+            (start, i) => {
+                end = i == token_starts.length - 1 ? code.length : token_starts[i+1];
+                return `<span class="${bubbleClass}">${code.substring(start, end)}</span>`
+            }
         ).join('');
     }
 
@@ -166,18 +164,18 @@
         tokenizeBtn.textContent = 'Tokenizing...';
 
         try {
-            const response = await fetch('/tokenize', {
+            const response = await fetch('/token_starts', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ code: code })
             });
 
             const result = await response.json();
-            document.getElementById('original-token-count').textContent = result.token_count;
-            renderTokens(result.tokens, originalTokensDisplay);
+            console.log(result);
+            document.getElementById('original-token-count').textContent = result.token_starts.length;
+            renderTokens(code, result.token_starts, originalTokensDisplay);
             
             tokensData = { original: result };
-            downloadTokensBtn.classList.remove('hidden');
 
         } catch (error) {
             console.error('Tokenization failed:', error);
@@ -232,7 +230,6 @@
             }
 
             tokensData.compressed = result;
-            downloadTokensBtn.classList.remove('hidden');
 
         } catch (error) {
             console.error('Compression failed:', error);
@@ -242,31 +239,5 @@
             compressBtn.textContent = 'Compress & Compare';
         }
     });
-
-    downloadTokensBtn.addEventListener('click', async () => {
-        if (!tokensData) return;
-
-        const response = await fetch('/download-tokens', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tokens_data: tokensData })
-        });
-
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'tokens.json';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    });
-
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
 </script>
 {% endblock %}

@@ -1,29 +1,12 @@
 from flask import Flask, render_template, request, jsonify, Response
 import os
-from compaqt.packer import pack_files, minimize_code
-from compaqt.tokenizer import count_tokens, get_tokenizer_info
+#from compaqt.packer import pack_files, minimize_code
+from compaqt.tokenizer import Tokenizer
 import json
 
 app = Flask(__name__)
 
-SAMPLE_REPO_PATH = os.path.join(os.path.dirname(__file__), 'compaqt', 'sample_repo')
-
-
-def load_sample_files():
-    """Load all Python files from the sample repository."""
-    files = []
-    for filename in sorted(os.listdir(SAMPLE_REPO_PATH)):
-        if filename.endswith('.py'):
-            filepath = os.path.join(SAMPLE_REPO_PATH, filename)
-            with open(filepath, 'r', encoding='utf-8') as f:
-                content = f.read()
-            files.append({
-                'name': filename,
-                'content': content,
-                'tokens': count_tokens(content)
-            })
-    return files
-
+tokenizer = Tokenizer()
 
 @app.route('/')
 def index():
@@ -77,8 +60,7 @@ def examples():
 @app.route('/tokenization')
 def tokenization():
     """Tokenization visualization page."""
-    tokenizer_info = get_tokenizer_info()
-    return render_template('tokenization.html', tokenizer_info=tokenizer_info)
+    return render_template('tokenization.html', tokenizer_name=tokenizer.name())
 
 
 @app.route('/developers')
@@ -113,34 +95,21 @@ def pack():
     data = request.get_json()
     token_budget = int(data.get('token_budget', 4000))
     
-    files = load_sample_files()
-    result = pack_files(files, token_budget)
+    #files = load_sample_files()
+    #result = pack_files(files, token_budget)
     
-    return jsonify(result)
+    #return jsonify(result)
+    return ""
 
 
-@app.route('/tokenize', methods=['POST'])
-def tokenize():
+@app.route('/token_starts', methods=['POST'])
+def token_starts():
     """Tokenize code input and return tokens."""
     data = request.get_json()
     code = data.get('code', '')
     
-    # Count tokens
-    token_count = count_tokens(code)
-    
-    # Get individual tokens using tiktoken if available
-    try:
-        import tiktoken
-        encoding = tiktoken.get_encoding("cl100k_base")
-        tokens = encoding.encode(code)
-        token_list = [encoding.decode_single_token_bytes(token).decode('utf-8', errors='ignore') for token in tokens]
-    except:
-        # Fallback: simple tokenization
-        token_list = code.split()
-    
     return jsonify({
-        'token_count': token_count,
-        'tokens': token_list[:500]  # Limit to first 500 tokens for display
+        'token_starts': tokenizer.token_starts(code)
     })
 
 
@@ -151,11 +120,11 @@ def compress():
     code = data.get('code', '')
     
     # Get original tokens
-    original_tokens = count_tokens(code)
+    original_tokens = tokenizer.num_tokens(code)
     
     # Minimize code
-    minimized_code = minimize_code(code)
-    compressed_tokens = count_tokens(minimized_code)
+    minimized_code = code#minimize_code(code)
+    compressed_tokens = tokenizer.num_tokens(minimized_code)
     
     # Get token lists
     try:
