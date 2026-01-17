@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Examples - Compaqt{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Page Header -->
+    <div class="text-center mb-12">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-indigo-500 via-purple-400 to-purple-600 bg-clip-text text-transparent">
+            Examples
+        </h1>
+        <p class="text-xl text-slate-300 max-w-3xl mx-auto">
+            Explore real-world examples of Compaqt in action
+        </p>
+    </div>
+
+    <!-- Examples Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {% for example in examples %}
+        <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 hover:border-indigo-500/50 transition-all duration-200 shadow-xl hover:shadow-2xl hover:scale-[1.02]">
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="text-2xl font-semibold text-indigo-400">{{ example.name }}</h3>
+                <span class="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-full text-sm border border-indigo-500/30">
+                    {{ example.files }} files
+                </span>
+            </div>
+            
+            <p class="text-slate-300 mb-6 leading-relaxed">
+                {{ example.description }}
+            </p>
+            
+            <!-- Token Comparison -->
+            <div class="bg-slate-900/50 rounded-lg p-4 mb-6 border border-slate-700/50">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-slate-400 text-sm">Before:</span>
+                    <span class="text-amber-400 font-semibold tabular-nums">{{ "{:,}".format(example.before_tokens) }} tokens</span>
+                </div>
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-slate-400 text-sm">After:</span>
+                    <span class="text-emerald-400 font-semibold tabular-nums">{{ "{:,}".format(example.after_tokens) }} tokens</span>
+                </div>
+                <div class="border-t border-slate-700/50 mt-2 pt-2 flex justify-between items-center">
+                    <span class="text-slate-400 text-sm">Savings:</span>
+                    <span class="text-purple-400 font-bold tabular-nums">
+                        {{ "{:,}".format(example.before_tokens - example.after_tokens) }} tokens 
+                        ({{ "{:.1f}".format((1 - example.after_tokens / example.before_tokens) * 100) }}%)
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="mb-6">
+                <div class="flex justify-between text-xs text-slate-400 mb-1">
+                    <span>Original</span>
+                    <span>{{ "{:.1f}".format((1 - example.after_tokens / example.before_tokens) * 100) }}% saved</span>
+                </div>
+                <div class="w-full bg-slate-700/50 rounded-full h-2">
+                    <div class="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full" style="width: {{ (example.after_tokens / example.before_tokens) * 100 }}%"></div>
+                </div>
+            </div>
+            
+            <button class="w-full px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-indigo-500/50" onclick="alert('Example viewer coming soon!')">
+                View Example
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- CTA Section -->
+    <div class="mt-12 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-2xl p-8 border border-indigo-500/30 text-center">
+        <h2 class="text-2xl font-bold mb-4 text-slate-100">Ready to Try Your Own Code?</h2>
+        <p class="text-lg text-slate-300 mb-6">
+            Try tokenizing and compressing your code to see how Compaqt optimizes it
+        </p>
+        <a href="{{ url_for('tokenization') }}" class="inline-block px-8 py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-indigo-500/50">
+            Try Tokenization
+        </a>
+    </div>
+</div>
+{% endblock %}

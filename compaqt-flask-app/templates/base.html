@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en" class="dark" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Compaqt - Prompt Packing Tool{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1',
+                        'primary-dark': '#4f46e5',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                        mono: ['Fira Code', 'Monaco', 'Consolas', 'monospace'],
+                    },
+                },
+            },
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen antialiased transition-colors duration-300">
+    <!-- Navigation Bar -->
+    <nav class="bg-slate-800/90 backdrop-blur-md border-b border-slate-700/50 sticky top-0 z-50 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex-shrink-0">
+                    <a href="{{ url_for('index') }}" class="text-2xl font-bold bg-gradient-to-r from-indigo-500 via-purple-400 to-purple-600 bg-clip-text text-transparent hover:opacity-80 transition-opacity">
+                        Compaqt
+                    </a>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">
+                            Home
+                        </a>
+                        <a href="{{ url_for('about') }}" class="nav-link {% if request.endpoint == 'about' %}active{% endif %}">
+                            About
+                        </a>
+                        <a href="{{ url_for('examples') }}" class="nav-link {% if request.endpoint == 'examples' %}active{% endif %}">
+                            Examples
+                        </a>
+                        <a href="{{ url_for('tokenization') }}" class="nav-link {% if request.endpoint == 'tokenization' %}active{% endif %}">
+                            Tokenization
+                        </a>
+                        <a href="{{ url_for('developers') }}" class="nav-link {% if request.endpoint == 'developers' %}active{% endif %}">
+                            Meet the Developers
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Dark Mode Toggle & Mobile Menu -->
+                <div class="flex items-center gap-4">
+                    <button id="dark-mode-toggle" class="p-2 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 transition-colors">
+                        <svg id="sun-icon" class="w-5 h-5 text-yellow-400 hidden" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"></path>
+                        </svg>
+                        <svg id="moon-icon" class="w-5 h-5 text-slate-300" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                        </svg>
+                    </button>
+
+                    <!-- Mobile menu button -->
+                    <button id="mobile-menu-button" class="md:hidden p-2 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-slate-700/50">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="{{ url_for('index') }}" class="mobile-nav-link {% if request.endpoint == 'index' %}active{% endif %} block px-3 py-2 rounded-md">
+                    Home
+                </a>
+                <a href="{{ url_for('about') }}" class="mobile-nav-link {% if request.endpoint == 'about' %}active{% endif %} block px-3 py-2 rounded-md">
+                    About
+                </a>
+                <a href="{{ url_for('examples') }}" class="mobile-nav-link {% if request.endpoint == 'examples' %}active{% endif %} block px-3 py-2 rounded-md">
+                    Examples
+                </a>
+                <a href="{{ url_for('tokenization') }}" class="mobile-nav-link {% if request.endpoint == 'tokenization' %}active{% endif %} block px-3 py-2 rounded-md">
+                    Tokenization
+                </a>
+                <a href="{{ url_for('developers') }}" class="mobile-nav-link {% if request.endpoint == 'developers' %}active{% endif %} block px-3 py-2 rounded-md">
+                    Meet the Developers
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-800/60 border-t border-slate-700/50 mt-12 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <p class="text-slate-400 text-sm">
+                        <span class="font-semibold text-indigo-400">Compaqt</span> - Prompt packing for efficient LLM coding assistance
+                    </p>
+                </div>
+                <div class="text-slate-500 text-xs">
+                    Built for <span class="text-slate-400">NexHacks 2026</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Dark mode toggle
+        const htmlRoot = document.getElementById('html-root');
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        const sunIcon = document.getElementById('sun-icon');
+        const moonIcon = document.getElementById('moon-icon');
+
+        // Check localStorage for dark mode preference
+        const isDarkMode = localStorage.getItem('darkMode') !== 'false';
+        
+        function setDarkMode(dark) {
+            if (dark) {
+                htmlRoot.classList.add('dark');
+                htmlRoot.classList.remove('light');
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+                localStorage.setItem('darkMode', 'true');
+            } else {
+                htmlRoot.classList.remove('dark');
+                htmlRoot.classList.add('light');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+                localStorage.setItem('darkMode', 'false');
+            }
+        }
+
+        // Initialize dark mode
+        setDarkMode(isDarkMode);
+
+        // Toggle dark mode on button click
+        darkModeToggle.addEventListener('click', () => {
+            const isCurrentlyDark = htmlRoot.classList.contains('dark');
+            setDarkMode(!isCurrentlyDark);
+        });
+
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

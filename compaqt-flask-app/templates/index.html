@@ -1,226 +1,103 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Compaqt - Prompt Packing Tool</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-    <header>
-        <div class="header-content">
-            <h1>Compaqt</h1>
-            <p class="tagline">Post-retrieval prompt packing for LLM coding agents</p>
-        </div>
-    </header>
+{% extends "base.html" %}
 
-    <main>
-        <div class="controls">
-            <div class="control-group">
-                <label for="token-budget">Token Budget</label>
-                <input type="range" id="token-budget" min="500" max="10000" value="4000" step="100">
-                <span id="budget-display">4000</span>
-            </div>
-            <button id="pack-btn" class="btn-primary">Pack Context</button>
-            <button id="download-btn" class="btn-secondary" disabled>Download Packed Prompt</button>
-        </div>
+{% block title %}Home - Compaqt{% endblock %}
 
-        <div class="columns">
-            <!-- Column 1: Retrieved Files -->
-            <div class="column">
-                <div class="column-header">
-                    <h2>Retrieved Files</h2>
-                    <span class="token-badge">Total: <span id="total-tokens">{{ total_tokens }}</span> tokens</span>
-                </div>
-                <div class="files-list" id="files-list">
-                    {% for file in files %}
-                    <div class="file-card">
-                        <div class="file-header">
-                            <span class="file-name">{{ file.name }}</span>
-                            <span class="file-tokens">{{ file.tokens }} tokens</span>
-                        </div>
-                        <pre class="file-content"><code>{{ file.content }}</code></pre>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <!-- Column 2: Packed Context -->
-            <div class="column">
-                <div class="column-header">
-                    <h2>Packed Context</h2>
-                    <span class="token-badge" id="packed-badge">Packed: -- tokens</span>
-                </div>
-                <div id="packed-content" class="packed-area">
-                    <div class="placeholder">
-                        <p>Click "Pack Context" to minimize and pack files into your token budget.</p>
-                    </div>
-                </div>
-                <div id="stats-panel" class="stats-panel hidden">
-                    <h3>Token Savings Report</h3>
-                    <div class="stats-grid">
-                        <div class="stat">
-                            <span class="stat-label">Original</span>
-                            <span class="stat-value" id="stat-original">--</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-label">Packed</span>
-                            <span class="stat-value" id="stat-packed">--</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-label">Saved</span>
-                            <span class="stat-value" id="stat-saved">--</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-label">Reduction</span>
-                            <span class="stat-value" id="stat-percent">--%</span>
-                        </div>
-                    </div>
-                    <div class="files-summary">
-                        <div class="included">
-                            <h4>Included (<span id="included-count">0</span>)</h4>
-                            <ul id="included-list"></ul>
-                        </div>
-                        <div class="excluded">
-                            <h4>Excluded (<span id="excluded-count">0</span>)</h4>
-                            <ul id="excluded-list"></ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Column 3: LLM Output -->
-            <div class="column">
-                <div class="column-header">
-                    <h2>LLM Output</h2>
-                    <span class="token-badge">Simulated</span>
-                </div>
-                <div class="llm-output">
-                    <div class="output-section">
-                        <h3>Baseline (Without Packing)</h3>
-                        <div class="output-box baseline">
-                            <p>With the full context of {{ total_tokens }} tokens, the LLM would process all retrieved files including comments, docstrings, and formatting.</p>
-                            <p class="output-note">Higher token usage = higher cost + slower response</p>
-                        </div>
-                    </div>
-                    <div class="output-section">
-                        <h3>With Compaqt Packing</h3>
-                        <div class="output-box packed" id="llm-packed-output">
-                            <p>Run packing to see the optimized context...</p>
-                        </div>
-                    </div>
-                    <div class="comparison-note" id="comparison-note" style="display: none;">
-                        <strong>Result:</strong> Same code understanding with <span id="token-savings">--</span> fewer tokens!
-                    </div>
-                </div>
+{% block content %}
+<!-- Hero Section -->
+<div class="bg-gradient-to-br from-slate-800 to-slate-900 border-b border-slate-700/50 py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+            <h1 class="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-indigo-500 via-purple-400 to-purple-600 bg-clip-text text-transparent animate-gradient">
+                Compaqt
+            </h1>
+            <p class="text-xl md:text-2xl text-slate-300 mb-4 max-w-3xl mx-auto">
+                Post-retrieval prompt packing for LLM coding agents
+            </p>
+            <p class="text-lg text-slate-400 mb-8 max-w-2xl mx-auto">
+                Minimize and pack code files into token budgets without losing reasoning quality. Save costs, improve performance.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{{ url_for('tokenization') }}" class="px-8 py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-indigo-500/50">
+                    Try Tokenization
+                </a>
+                <a href="{{ url_for('about') }}" class="px-8 py-3 bg-slate-700/50 hover:bg-slate-600/50 text-slate-200 font-semibold rounded-lg border border-slate-600/50 transition-all duration-200 hover:scale-105">
+                    Learn More
+                </a>
             </div>
         </div>
-    </main>
+    </div>
+</div>
 
-    <footer>
-        <p>Compaqt Demo - Prompt packing for efficient LLM coding assistance</p>
-    </footer>
+<!-- Features Section -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <h2 class="text-3xl font-bold text-center mb-12 text-slate-200">Key Features</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 hover:border-indigo-500/50 transition-all duration-200 hover:shadow-xl">
+            <div class="text-4xl mb-4">🎯</div>
+            <h3 class="text-xl font-semibold mb-3 text-indigo-400">Smart Tokenization</h3>
+            <p class="text-slate-300">Uses OpenAI's GPT-4o mini tokenizer (tiktoken) for accurate token counting and visualization.</p>
+        </div>
+        
+        <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 hover:border-indigo-500/50 transition-all duration-200 hover:shadow-xl">
+            <div class="text-4xl mb-4">⚡</div>
+            <h3 class="text-xl font-semibold mb-3 text-indigo-400">Code Minimization</h3>
+            <p class="text-slate-300">Automatically removes comments, docstrings, and blank lines while preserving all functionality.</p>
+        </div>
+        
+        <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 hover:border-indigo-500/50 transition-all duration-200 hover:shadow-xl">
+            <div class="text-4xl mb-4">📦</div>
+            <h3 class="text-xl font-semibold mb-3 text-indigo-400">Greedy Packing</h3>
+            <p class="text-slate-300">Intelligently fits maximum code into your token budget using an optimized packing algorithm.</p>
+        </div>
+    </div>
+</div>
 
-    <script>
-        let packedText = '';
+<!-- How It Works Preview -->
+<div class="bg-slate-800/30 py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-bold text-center mb-12 text-slate-200">How It Works</h2>
+        <div class="flex flex-col md:flex-row items-center justify-center gap-8 mb-8">
+            <div class="bg-slate-700/50 rounded-lg px-6 py-4 border border-slate-600/50 text-center">
+                <div class="text-2xl mb-2">📁</div>
+                <p class="font-semibold text-slate-200">Repo</p>
+            </div>
+            <div class="text-indigo-400 text-2xl">→</div>
+            <div class="bg-slate-700/50 rounded-lg px-6 py-4 border border-slate-600/50 text-center">
+                <div class="text-2xl mb-2">🔍</div>
+                <p class="font-semibold text-slate-200">Retrieval</p>
+            </div>
+            <div class="text-indigo-400 text-2xl">→</div>
+            <div class="bg-indigo-500/20 rounded-lg px-6 py-4 border-2 border-indigo-500/50 text-center">
+                <div class="text-2xl mb-2">⚡</div>
+                <p class="font-semibold text-indigo-300">Compaqt</p>
+            </div>
+            <div class="text-indigo-400 text-2xl">→</div>
+            <div class="bg-slate-700/50 rounded-lg px-6 py-4 border border-slate-600/50 text-center">
+                <div class="text-2xl mb-2">🤖</div>
+                <p class="font-semibold text-slate-200">LLM</p>
+            </div>
+        </div>
+        <p class="text-center text-slate-400 max-w-2xl mx-auto">
+            Compaqt processes retrieved code files, minimizes them, and packs them efficiently into your token budget. The LLM receives optimized context with reduced token usage while maintaining full code understanding.
+        </p>
+    </div>
+</div>
 
-        const budgetSlider = document.getElementById('token-budget');
-        const budgetDisplay = document.getElementById('budget-display');
-        const packBtn = document.getElementById('pack-btn');
-        const downloadBtn = document.getElementById('download-btn');
-
-        budgetSlider.addEventListener('input', () => {
-            budgetDisplay.textContent = budgetSlider.value;
-        });
-
-        packBtn.addEventListener('click', async () => {
-            packBtn.disabled = true;
-            packBtn.textContent = 'Packing...';
-
-            try {
-                const response = await fetch('/pack', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token_budget: parseInt(budgetSlider.value) })
-                });
-
-                const result = await response.json();
-                packedText = result.packed_text;
-
-                // Update packed content
-                const packedContent = document.getElementById('packed-content');
-                packedContent.innerHTML = `<pre class="packed-code"><code>${escapeHtml(result.packed_text)}</code></pre>`;
-
-                // Update badge
-                document.getElementById('packed-badge').textContent = `Packed: ${result.stats.packed_tokens} tokens`;
-
-                // Update stats
-                const statsPanel = document.getElementById('stats-panel');
-                statsPanel.classList.remove('hidden');
-
-                document.getElementById('stat-original').textContent = result.stats.original_total_tokens;
-                document.getElementById('stat-packed').textContent = result.stats.packed_tokens;
-                document.getElementById('stat-saved').textContent = result.stats.tokens_saved;
-                document.getElementById('stat-percent').textContent = result.stats.savings_percentage + '%';
-
-                // Update included files
-                document.getElementById('included-count').textContent = result.included_files.length;
-                const includedList = document.getElementById('included-list');
-                includedList.innerHTML = result.included_files.map(f => 
-                    `<li>${f.name} <span class="savings">(${f.original_tokens} → ${f.packed_tokens})</span></li>`
-                ).join('');
-
-                // Update excluded files
-                document.getElementById('excluded-count').textContent = result.excluded_files.length;
-                const excludedList = document.getElementById('excluded-list');
-                excludedList.innerHTML = result.excluded_files.map(f => 
-                    `<li>${f.name} <span class="reason">(${f.reason})</span></li>`
-                ).join('');
-
-                // Update LLM output simulation
-                const llmOutput = document.getElementById('llm-packed-output');
-                llmOutput.innerHTML = `
-                    <p>With Compaqt, the LLM receives a minimized context of <strong>${result.stats.packed_tokens}</strong> tokens.</p>
-                    <p>Comments, docstrings, and blank lines removed while preserving all code functionality.</p>
-                    <p class="output-note">Lower token usage = lower cost + faster response</p>
-                `;
-
-                // Show comparison
-                const comparisonNote = document.getElementById('comparison-note');
-                comparisonNote.style.display = 'block';
-                document.getElementById('token-savings').textContent = result.stats.tokens_saved;
-
-                // Enable download
-                downloadBtn.disabled = false;
-
-            } catch (error) {
-                console.error('Packing failed:', error);
-                alert('Failed to pack context. Please try again.');
-            } finally {
-                packBtn.disabled = false;
-                packBtn.textContent = 'Pack Context';
-            }
-        });
-
-        downloadBtn.addEventListener('click', async () => {
-            if (!packedText) return;
-
-            const blob = new Blob([packedText], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'packed_prompt.txt';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        });
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-    </script>
-</body>
-</html>
+<!-- CTA Section -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-2xl p-8 md:p-12 border border-indigo-500/30 text-center">
+        <h2 class="text-3xl font-bold mb-4 text-slate-100">Ready to Optimize Your Prompts?</h2>
+        <p class="text-lg text-slate-300 mb-8 max-w-2xl mx-auto">
+            Start packing your code files today and see immediate token savings.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{{ url_for('tokenization') }}" class="px-8 py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-indigo-500/50">
+                Try Tokenization
+            </a>
+            <a href="{{ url_for('examples') }}" class="px-8 py-3 bg-transparent hover:bg-slate-700/50 text-slate-200 font-semibold rounded-lg border-2 border-slate-600/50 transition-all duration-200 hover:scale-105">
+                View Examples
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

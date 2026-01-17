@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+
+{% block title %}Tokenization - Compaqt{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Page Header -->
+    <div class="text-center mb-8">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-indigo-500 via-purple-400 to-purple-600 bg-clip-text text-transparent">
+            Tokenization Visualization
+        </h1>
+        <p class="text-xl text-slate-300 max-w-3xl mx-auto mb-2">
+            Visualize how your code is tokenized using OpenAI's GPT-4o mini tokenizer
+        </p>
+        <div class="bg-indigo-500/20 border border-indigo-500/50 rounded-lg p-3 max-w-2xl mx-auto mt-4">
+            <p class="text-indigo-300 text-sm">
+                <strong>Tokenizer:</strong> {{ tokenizer_info.tokenizer }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Code Input Section -->
+    <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 mb-8 border border-slate-700/50 shadow-xl">
+        <div class="mb-4">
+            <label for="code-input" class="block text-sm font-medium text-slate-300 mb-2">
+                Enter Your Code
+            </label>
+            <textarea 
+                id="code-input" 
+                rows="10" 
+                class="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg p-4 text-slate-200 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                placeholder="Enter your code here...&#10;&#10;Example:&#10;def hello_world():&#10;    # This is a comment&#10;    print(&quot;Hello, World!&quot;)"
+            ></textarea>
+        </div>
+        <div class="flex flex-wrap gap-4">
+            <button 
+                id="tokenize-btn" 
+                class="px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-indigo-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                Tokenize
+            </button>
+            <button 
+                id="compress-btn" 
+                class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-emerald-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                Compress & Compare
+            </button>
+            <button 
+                id="download-tokens-btn" 
+                class="px-6 py-3 bg-slate-700/50 hover:bg-slate-600/50 text-slate-200 font-semibold rounded-lg border border-slate-600/50 transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed hidden"
+            >
+                Download Tokens as JSON
+            </button>
+        </div>
+    </div>
+
+    <!-- Token Display Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Original Tokens -->
+        <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-xl overflow-hidden flex flex-col max-h-[600px]">
+            <div class="flex justify-between items-center px-6 py-4 bg-slate-700/30 border-b border-slate-700/50">
+                <h2 class="text-lg font-semibold text-slate-200">Original Tokens</h2>
+                <span class="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-full text-sm font-medium border border-indigo-500/30">
+                    <span id="original-token-count">--</span> tokens
+                </span>
+            </div>
+            <div id="original-tokens-display" class="p-4 flex-1 overflow-y-auto scrollbar-thin">
+                <div class="text-slate-400 text-center p-8">
+                    <p>Click "Tokenize" to visualize tokens</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compressed Tokens -->
+        <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-xl overflow-hidden flex flex-col max-h-[600px]" id="compressed-section">
+            <div class="flex justify-between items-center px-6 py-4 bg-slate-700/30 border-b border-slate-700/50">
+                <h2 class="text-lg font-semibold text-slate-200">Compressed Tokens</h2>
+                <span class="px-3 py-1 bg-emerald-500/20 text-emerald-300 rounded-full text-sm font-medium border border-emerald-500/30">
+                    <span id="compressed-token-count">--</span> tokens
+                </span>
+            </div>
+            <div id="compressed-tokens-display" class="p-4 flex-1 overflow-y-auto scrollbar-thin">
+                <div class="text-slate-400 text-center p-8">
+                    <p>Click "Compress & Compare" to see compressed tokens</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comparison Stats -->
+    <div id="comparison-stats" class="hidden mt-6 bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 shadow-xl animate-fade-in">
+        <h3 class="text-xl font-semibold mb-4 text-indigo-400">Token Comparison</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-slate-900/50 p-4 rounded-lg text-center border border-slate-700/30">
+                <span class="block text-xs text-slate-400 mb-2">Original</span>
+                <span id="stat-orig" class="block text-2xl font-bold text-indigo-400 tabular-nums">--</span>
+            </div>
+            <div class="bg-slate-900/50 p-4 rounded-lg text-center border border-slate-700/30">
+                <span class="block text-xs text-slate-400 mb-2">Compressed</span>
+                <span id="stat-comp" class="block text-2xl font-bold text-emerald-400 tabular-nums">--</span>
+            </div>
+            <div class="bg-slate-900/50 p-4 rounded-lg text-center border border-slate-700/30">
+                <span class="block text-xs text-slate-400 mb-2">Saved</span>
+                <span id="stat-sav" class="block text-2xl font-bold text-purple-400 tabular-nums">--</span>
+            </div>
+            <div class="bg-slate-900/50 p-4 rounded-lg text-center border border-slate-700/30">
+                <span class="block text-xs text-slate-400 mb-2">Reduction</span>
+                <span id="stat-perc" class="block text-2xl font-bold text-amber-400 tabular-nums">--%</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.token-bubble {
+    display: inline-block;
+    background: rgba(99, 102, 241, 0.2);
+    border: 1px solid rgba(99, 102, 241, 0.4);
+    color: #818cf8;
+    padding: 0.25rem 0.5rem;
+    margin: 0.125rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-family: 'Fira Code', monospace;
+    word-break: break-all;
+}
+.token-bubble-compressed {
+    background: rgba(16, 185, 129, 0.2);
+    border-color: rgba(16, 185, 129, 0.4);
+    color: #34d399;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let tokensData = null;
+
+    const codeInput = document.getElementById('code-input');
+    const tokenizeBtn = document.getElementById('tokenize-btn');
+    const compressBtn = document.getElementById('compress-btn');
+    const downloadTokensBtn = document.getElementById('download-tokens-btn');
+    const originalTokensDisplay = document.getElementById('original-tokens-display');
+    const compressedTokensDisplay = document.getElementById('compressed-tokens-display');
+
+    function renderTokens(tokens, container, isCompressed = false) {
+        if (!tokens || tokens.length === 0) {
+            container.innerHTML = '<div class="text-slate-400 text-center p-8"><p>No tokens to display</p></div>';
+            return;
+        }
+
+        const bubbleClass = isCompressed ? 'token-bubble token-bubble-compressed' : 'token-bubble';
+        container.innerHTML = tokens.map(token => 
+            `<span class="${bubbleClass}" title="${escapeHtml(token)}">${escapeHtml(token)}</span>`
+        ).join('');
+    }
+
+    tokenizeBtn.addEventListener('click', async () => {
+        const code = codeInput.value.trim();
+        if (!code) {
+            alert('Please enter some code first.');
+            return;
+        }
+
+        tokenizeBtn.disabled = true;
+        tokenizeBtn.textContent = 'Tokenizing...';
+
+        try {
+            const response = await fetch('/tokenize', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: code })
+            });
+
+            const result = await response.json();
+            document.getElementById('original-token-count').textContent = result.token_count;
+            renderTokens(result.tokens, originalTokensDisplay);
+            
+            tokensData = { original: result };
+            downloadTokensBtn.classList.remove('hidden');
+
+        } catch (error) {
+            console.error('Tokenization failed:', error);
+            alert('Failed to tokenize code. Please try again.');
+        } finally {
+            tokenizeBtn.disabled = false;
+            tokenizeBtn.textContent = 'Tokenize';
+        }
+    });
+
+    compressBtn.addEventListener('click', async () => {
+        const code = codeInput.value.trim();
+        if (!code) {
+            alert('Please enter some code first.');
+            return;
+        }
+
+        compressBtn.disabled = true;
+        compressBtn.textContent = 'Compressing...';
+
+        try {
+            const response = await fetch('/compress', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: code })
+            });
+
+            const result = await response.json();
+            
+            document.getElementById('compressed-token-count').textContent = result.compressed_tokens;
+            renderTokens(result.compressed_token_list, compressedTokensDisplay, true);
+            
+            // Update stats
+            const statsPanel = document.getElementById('comparison-stats');
+            statsPanel.classList.remove('hidden');
+            document.getElementById('stat-orig').textContent = result.original_tokens;
+            document.getElementById('stat-comp').textContent = result.compressed_tokens;
+            document.getElementById('stat-sav').textContent = result.savings;
+            document.getElementById('stat-perc').textContent = result.savings_percentage + '%';
+
+            // If not already tokenized, tokenize original
+            if (!tokensData || !tokensData.original) {
+                const tokenizeResponse = await fetch('/tokenize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: code })
+                });
+                const tokenizeResult = await tokenizeResponse.json();
+                document.getElementById('original-token-count').textContent = tokenizeResult.token_count;
+                renderTokens(tokenizeResult.tokens, originalTokensDisplay);
+                tokensData = { original: tokenizeResult };
+            }
+
+            tokensData.compressed = result;
+            downloadTokensBtn.classList.remove('hidden');
+
+        } catch (error) {
+            console.error('Compression failed:', error);
+            alert('Failed to compress code. Please try again.');
+        } finally {
+            compressBtn.disabled = false;
+            compressBtn.textContent = 'Compress & Compare';
+        }
+    });
+
+    downloadTokensBtn.addEventListener('click', async () => {
+        if (!tokensData) return;
+
+        const response = await fetch('/download-tokens', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tokens_data: tokensData })
+        });
+
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'tokens.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    });
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+</script>
+{% endblock %}

@@ -2,7 +2,6 @@
 Prompt packing module for minimizing and packing code files into a token budget.
 """
 
-import re
 from typing import List, Dict, Any
 from .tokenizer import count_tokens
 

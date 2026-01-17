@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}About - Compaqt{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Page Header -->
+    <div class="text-center mb-12">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-indigo-500 via-purple-400 to-purple-600 bg-clip-text text-transparent">
+            About Compaqt
+        </h1>
+        <p class="text-xl text-slate-300 max-w-3xl mx-auto">
+            A post-retrieval prompt packing tool designed to optimize LLM coding agent workflows
+        </p>
+    </div>
+
+    <!-- What is Compaqt -->
+    <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl p-8 mb-8 border border-slate-700/50 shadow-xl">
+        <h2 class="text-2xl font-semibold mb-4 text-indigo-400">What is Compaqt?</h2>
+        <p class="text-slate-300 text-lg leading-relaxed mb-4">
+            Compaqt is a powerful post-retrieval prompt packing tool specifically designed for LLM coding agents. When coding assistants retrieve multiple code files to understand context, they often consume a large number of tokens processing comments, docstrings, and formatting that don't contribute to code understanding.
+        </p>
+        <p class="text-slate-300 text-lg leading-relaxed">
+            Compaqt intelligently minimizes code files by removing unnecessary elements while preserving all functional code. This results in significant token savings without losing reasoning quality, making LLM interactions faster and more cost-effective.
+        </p>
+    </div>
+
+    <!-- Flow Diagram -->
+    <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl p-8 mb-8 border border-slate-700/50 shadow-xl">
+        <h2 class="text-2xl font-semibold mb-6 text-indigo-400 text-center">How Compaqt Works</h2>
+        <div class="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 mb-8">
+            <div class="flex flex-col items-center bg-slate-700/50 rounded-lg p-6 border border-slate-600/50 hover:border-indigo-500/50 transition-all duration-200 flex-1 max-w-xs">
+                <div class="text-5xl mb-4">📁</div>
+                <h3 class="font-semibold text-lg mb-2 text-slate-200">Repository</h3>
+                <p class="text-slate-400 text-sm text-center">Your codebase with multiple files containing code, comments, and documentation</p>
+            </div>
+            
+            <div class="text-indigo-400 text-3xl md:text-4xl font-bold">→</div>
+            
+            <div class="flex flex-col items-center bg-slate-700/50 rounded-lg p-6 border border-slate-600/50 hover:border-indigo-500/50 transition-all duration-200 flex-1 max-w-xs">
+                <div class="text-5xl mb-4">🔍</div>
+                <h3 class="font-semibold text-lg mb-2 text-slate-200">Retrieval</h3>
+                <p class="text-slate-400 text-sm text-center">Coding agent retrieves relevant files based on the query context</p>
+            </div>
+            
+            <div class="text-indigo-400 text-3xl md:text-4xl font-bold">→</div>
+            
+            <div class="flex flex-col items-center bg-indigo-500/20 rounded-lg p-6 border-2 border-indigo-500/50 hover:border-indigo-400 transition-all duration-200 flex-1 max-w-xs">
+                <div class="text-5xl mb-4">⚡</div>
+                <h3 class="font-semibold text-lg mb-2 text-indigo-300">Compaqt</h3>
+                <p class="text-slate-400 text-sm text-center">Minimizes and packs files into token budget while preserving functionality</p>
+            </div>
+            
+            <div class="text-indigo-400 text-3xl md:text-4xl font-bold">→</div>
+            
+            <div class="flex flex-col items-center bg-slate-700/50 rounded-lg p-6 border border-slate-600/50 hover:border-indigo-500/50 transition-all duration-200 flex-1 max-w-xs">
+                <div class="text-5xl mb-4">🤖</div>
+                <h3 class="font-semibold text-lg mb-2 text-slate-200">LLM</h3>
+                <p class="text-slate-400 text-sm text-center">Receives optimized context with fewer tokens, same understanding</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works Section -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 shadow-xl">
+            <h3 class="text-xl font-semibold mb-4 text-indigo-400">Post-Retrieval Prompt Packing</h3>
+            <p class="text-slate-300 leading-relaxed">
+                After code files are retrieved by the coding agent, Compaqt processes them to fit within your specified token budget. It uses a greedy packing algorithm to maximize the amount of useful code included while staying under the limit.
+            </p>
+        </div>
+        
+        <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 shadow-xl">
+            <h3 class="text-xl font-semibold mb-4 text-indigo-400">Token Savings</h3>
+            <p class="text-slate-300 leading-relaxed">
+                By removing comments, docstrings, and blank lines, Compaqt typically achieves 30-50% token reduction. This translates directly to lower API costs and faster response times, especially when working with large codebases.
+            </p>
+        </div>
+        
+        <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 shadow-xl">
+            <h3 class="text-xl font-semibold mb-4 text-indigo-400">Preserving Output Quality</h3>
+            <p class="text-slate-300 leading-relaxed">
+                Unlike aggressive minification that breaks code, Compaqt preserves all functional code, variable names, and structure. The LLM receives clean, readable code that maintains the same understanding as the original, just without the overhead.
+            </p>
+        </div>
+        
+        <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 shadow-xl">
+            <h3 class="text-xl font-semibold mb-4 text-indigo-400">Why It Matters</h3>
+            <p class="text-slate-300 leading-relaxed">
+                As LLM coding assistants become integral to development workflows, managing token costs becomes crucial. Compaqt enables developers to work with larger codebases more efficiently while maintaining the same quality of AI assistance.
+            </p>
+        </div>
+    </div>
+
+    <!-- Technical Details -->
+    <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl p-8 border border-slate-700/50 shadow-xl">
+        <h2 class="text-2xl font-semibold mb-6 text-indigo-400">Technical Implementation</h2>
+        <div class="space-y-4 text-slate-300">
+            <div>
+                <h3 class="font-semibold text-indigo-300 mb-2">Tokenization</h3>
+                <p>Uses OpenAI's tiktoken library with the cl100k_base encoding (same as GPT-4o mini) for accurate token counting that matches production LLM tokenizers.</p>
+            </div>
+            <div>
+                <h3 class="font-semibold text-indigo-300 mb-2">Code Minimization</h3>
+                <p>Intelligently removes Python comments (both inline and block), docstrings (single and multi-line), and unnecessary whitespace while preserving code structure and indentation.</p>
+            </div>
+            <div>
+                <h3 class="font-semibold text-indigo-300 mb-2">Packing Algorithm</h3>
+                <p>Employs a greedy approach that sorts files by size and fits maximum code into the token budget, ensuring optimal coverage of your codebase within constraints.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="mt-12 text-center">
+        <a href="{{ url_for('tokenization') }}" class="inline-block px-8 py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-indigo-500/50">
+            Try Tokenization
+        </a>
+    </div>
+</div>
+{% endblock %}
