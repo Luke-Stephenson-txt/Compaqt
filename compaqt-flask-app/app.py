@@ -1,13 +1,15 @@
 from flask import Flask, render_template, request, jsonify, Response, abort
 import os
 from compaqt.tokenizer import Tokenizer
-from compaqt.minify import minify_c
+from compaqt.minify_c import minify_c
+from compaqt.minify_semantic import MinifySemantic
 from compaqt.examples_data import get_all_examples, get_example_by_id
 import json
 
 app = Flask(__name__)
 
 tokenizer = Tokenizer()
+semantic_minifier = MinifySemantic()
 
 @app.route('/')
 def index():
@@ -70,32 +72,8 @@ def developers():
 
 # API Routes
 
-@app.route('/pack', methods=['POST'])
-def pack():
-    """Pack files into token budget."""
-    data = request.get_json()
-    token_budget = int(data.get('token_budget', 4000))
-    
-    #files = load_sample_files()
-    #result = pack_files(files, token_budget)
-    
-    #return jsonify(result)
-    return ""
-
-
-@app.route('/token_starts', methods=['POST'])
-def token_starts():
-    """Tokenize code input and return tokens."""
-    data = request.get_json()
-    code = data.get('code', '')
-    
-    return jsonify({
-        'token_starts': tokenizer.token_starts(code)
-    })
-
-
-@app.route('/compress', methods=['POST'])
-def compress():
+@app.route('/compress_c', methods=['POST'])
+def compress_c():
     """Compress/minimize code and return token comparison."""
     data = request.get_json()
     code = data.get('code', '')
@@ -110,7 +88,6 @@ def compress():
     compressed_token_starts = tokenizer.token_starts(minimized_code)
 
     return jsonify({
-        'original_code': code,
         'minimized_code': minimized_code,
         'original_tokens': original_tokens,
         'compressed_tokens': compressed_tokens,
@@ -120,32 +97,30 @@ def compress():
         'savings_percentage': round((1 - compressed_tokens / original_tokens) * 100, 1) if original_tokens > 0 else 0
     })
 
-
-@app.route('/download', methods=['POST'])
-def download():
-    """Download packed text."""
+@app.route('/compress_prompt', methods=['POST'])
+def compress_prompt():
     data = request.get_json()
-    packed_text = data.get('packed_text', '')
-    
-    return Response(
-        packed_text,
-        mimetype='text/plain',
-        headers={'Content-Disposition': 'attachment;filename=packed_prompt.txt'}
-    )
+    prompt = data.get('prompt', '')
+    ratio = data.get('ratio', '')
 
+    # Get original tokens
+    original_tokens = tokenizer.num_tokens(prompt)
+    original_token_starts = tokenizer.token_starts(prompt)
 
-@app.route('/download-tokens', methods=['POST'])
-def download_tokens():
-    """Download tokens as JSON."""
-    data = request.get_json()
-    tokens_data = data.get('tokens_data', {})
-    
-    return Response(
-        json.dumps(tokens_data, indent=2),
-        mimetype='application/json',
-        headers={'Content-Disposition': 'attachment;filename=tokens.json'}
-    )
+    # Minimize code using minify_c
+    minimized_prompt = semantic_minifier.compress_prompt(prompt, ratio)
+    compressed_tokens = tokenizer.num_tokens(minimized_prompt)
+    compressed_token_starts = tokenizer.token_starts(minimized_prompt)
 
+    return jsonify({
+        'minimized_prompt': minimized_prompt,
+        'original_tokens': original_tokens,
+        'compressed_tokens': compressed_tokens,
+        'original_token_starts': original_token_starts,
+        'compressed_token_starts': compressed_token_starts,
+        'savings': original_tokens - compressed_tokens,
+        'savings_percentage': round((1 - compressed_tokens / original_tokens) * 100, 1) if original_tokens > 0 else 0
+    })
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

@@ -343,7 +343,7 @@
         compressBtn.textContent = 'Compressing...';
 
         try {
-            const response = await fetch('/compress', {
+            const response = await fetch('/compress_c', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ code: code })
@@ -353,7 +353,7 @@
 
             // Display original tokens
             document.getElementById('original-token-count').textContent = result.original_tokens;
-            renderTokens(result.original_code, result.original_token_starts, originalDisplay);
+            renderTokens(code, result.original_token_starts, originalDisplay);
 
             // Display compressed tokens
             document.getElementById('compressed-token-count').textContent = result.compressed_tokens;
