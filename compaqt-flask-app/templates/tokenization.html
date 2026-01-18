@@ -19,19 +19,94 @@
         </div>
     </div>
 
-    <!-- Code Input Section -->
+    <!-- Input Section -->
     <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 mb-8 border border-slate-700/50 shadow-xl">
-        <div class="mb-4">
+        <!-- C Code Input -->
+        <div class="mb-6">
             <label for="code-input" class="block text-sm font-medium text-slate-300 mb-2">
-                Enter Your C Code
+                C Code Context
             </label>
             <textarea
                 id="code-input"
-                rows="10"
+                rows="8"
                 class="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg p-4 text-slate-200 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 placeholder="Enter your C code here...&#10;&#10;Example:&#10;#include <stdio.h>&#10;&#10;// Hello world program&#10;int main() {&#10;    printf(&quot;Hello, World!\n&quot;);&#10;    return 0;&#10;}"
             ></textarea>
         </div>
+
+        <!-- Prompt Input -->
+        <div class="mb-6">
+            <label for="prompt-input" class="block text-sm font-medium text-slate-300 mb-2">
+                Prompt
+            </label>
+            <textarea
+                id="prompt-input"
+                rows="6"
+                class="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg p-4 text-slate-200 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="Enter your prompt here...&#10;&#10;Example:&#10;Write a function that calculates the factorial of a number using recursion. The function should handle edge cases and return appropriate values."
+            ></textarea>
+        </div>
+
+        <!-- Elite+ Mode Toggle -->
+        <div class="mb-6 bg-gradient-to-r from-purple-900/30 to-indigo-900/30 rounded-lg p-4 border border-purple-500/30">
+            <div class="flex items-center justify-between">
+                <div class="flex-1">
+                    <h3 class="text-sm font-semibold text-purple-300 mb-1">Elite+ Mode</h3>
+                    <p class="text-xs text-purple-400/80">Advanced SIRCL compression with semantic identifier encoding and repetition compression</p>
+                    <div class="mt-2 p-2 bg-amber-500/10 border border-amber-500/30 rounded text-xs text-amber-300/90">
+                        <strong>⚠️ Requirement:</strong> Elite+ mode requires Node.js to be installed on the server. If Node.js is not available, the toggle will be disabled and regular compression will be used.
+                    </div>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input
+                        type="checkbox"
+                        id="elite-plus-toggle"
+                        class="sr-only peer"
+                    />
+                    <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-500/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                </label>
+            </div>
+            <div id="elite-plus-status" class="mt-2 text-xs text-slate-400 hidden">
+                <span id="elite-plus-status-text"></span>
+            </div>
+        </div>
+
+        <!-- Semantic Compression Settings -->
+        <div class="mb-6 bg-slate-900/50 rounded-lg p-4 border border-slate-700/30">
+            <h3 class="text-sm font-semibold text-slate-300 mb-4">Semantic Compression Settings</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="ratio-input" class="block text-xs text-slate-400 mb-2">
+                        Compression Ratio: <span id="ratio-value">0.7</span>
+                    </label>
+                    <input
+                        type="range"
+                        id="ratio-input"
+                        min="0.1"
+                        max="0.9"
+                        step="0.05"
+                        value="0.7"
+                        class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
+                    />
+                    <p class="text-xs text-slate-500 mt-1">Lower values = more compression</p>
+                </div>
+                <div>
+                    <label for="min-words-input" class="block text-xs text-slate-400 mb-2">
+                        Minimum Words: <span id="min-words-value">5</span>
+                    </label>
+                    <input
+                        type="number"
+                        id="min-words-input"
+                        min="1"
+                        max="20"
+                        value="5"
+                        class="w-full bg-slate-800 border border-slate-700/50 rounded-lg p-2 text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                    <p class="text-xs text-slate-500 mt-1">Minimum words before compression</p>
+                </div>
+            </div>
+        </div>
+
         <div class="flex flex-wrap gap-4">
             <button
                 id="compress-btn"
@@ -45,55 +120,130 @@
     <!-- Comparison Stats (moved above for context) -->
     <div id="comparison-stats" class="hidden mb-6 bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 shadow-xl animate-fade-in">
         <h3 class="text-xl font-semibold mb-4 text-indigo-400">Compression Results</h3>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="bg-slate-900/50 p-4 rounded-lg text-center border border-slate-700/30">
-                <span class="block text-xs text-slate-400 mb-2">Original</span>
-                <span id="stat-orig" class="block text-2xl font-bold text-indigo-400 tabular-nums">--</span>
-                <span class="block text-xs text-slate-500">tokens</span>
+        
+        <!-- Combined Stats -->
+        <div class="mb-6">
+            <h4 class="text-sm font-medium text-slate-400 mb-3">Combined (C Code + Prompt)</h4>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-slate-900/50 p-4 rounded-lg text-center border border-slate-700/30">
+                    <span class="block text-xs text-slate-400 mb-2">Original</span>
+                    <span id="stat-orig" class="block text-2xl font-bold text-indigo-400 tabular-nums">--</span>
+                    <span class="block text-xs text-slate-500">tokens</span>
+                </div>
+                <div class="bg-slate-900/50 p-4 rounded-lg text-center border border-slate-700/30">
+                    <span class="block text-xs text-slate-400 mb-2">Compressed</span>
+                    <span id="stat-comp" class="block text-2xl font-bold text-emerald-400 tabular-nums">--</span>
+                    <span class="block text-xs text-slate-500">tokens</span>
+                </div>
+                <div class="bg-slate-900/50 p-4 rounded-lg text-center border border-slate-700/30">
+                    <span class="block text-xs text-slate-400 mb-2">Saved</span>
+                    <span id="stat-sav" class="block text-2xl font-bold text-purple-400 tabular-nums">--</span>
+                    <span class="block text-xs text-slate-500">tokens</span>
+                </div>
+                <div class="bg-slate-900/50 p-4 rounded-lg text-center border border-slate-700/30">
+                    <span class="block text-xs text-slate-400 mb-2">Reduction</span>
+                    <span id="stat-perc" class="block text-2xl font-bold text-amber-400 tabular-nums">--%</span>
+                </div>
             </div>
-            <div class="bg-slate-900/50 p-4 rounded-lg text-center border border-slate-700/30">
-                <span class="block text-xs text-slate-400 mb-2">Compressed</span>
-                <span id="stat-comp" class="block text-2xl font-bold text-emerald-400 tabular-nums">--</span>
-                <span class="block text-xs text-slate-500">tokens</span>
+        </div>
+
+        <!-- Separate Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- C Code Stats -->
+            <div class="bg-slate-900/30 p-4 rounded-lg border border-indigo-500/30">
+                <h4 class="text-sm font-medium text-indigo-400 mb-3">C Code</h4>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="text-center">
+                        <span class="block text-xs text-slate-400 mb-1">Original</span>
+                        <span id="stat-code-orig" class="block text-lg font-bold text-indigo-300 tabular-nums">--</span>
+                    </div>
+                    <div class="text-center">
+                        <span class="block text-xs text-slate-400 mb-1">Compressed</span>
+                        <span id="stat-code-comp" class="block text-lg font-bold text-emerald-300 tabular-nums">--</span>
+                    </div>
+                </div>
             </div>
-            <div class="bg-slate-900/50 p-4 rounded-lg text-center border border-slate-700/30">
-                <span class="block text-xs text-slate-400 mb-2">Saved</span>
-                <span id="stat-sav" class="block text-2xl font-bold text-purple-400 tabular-nums">--</span>
-                <span class="block text-xs text-slate-500">tokens</span>
-            </div>
-            <div class="bg-slate-900/50 p-4 rounded-lg text-center border border-slate-700/30">
-                <span class="block text-xs text-slate-400 mb-2">Reduction</span>
-                <span id="stat-perc" class="block text-2xl font-bold text-amber-400 tabular-nums">--%</span>
+            
+            <!-- Prompt Stats -->
+            <div class="bg-slate-900/30 p-4 rounded-lg border border-purple-500/30">
+                <h4 class="text-sm font-medium text-purple-400 mb-3">Prompt</h4>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="text-center">
+                        <span class="block text-xs text-slate-400 mb-1">Original</span>
+                        <span id="stat-prompt-orig" class="block text-lg font-bold text-purple-300 tabular-nums">--</span>
+                    </div>
+                    <div class="text-center">
+                        <span class="block text-xs text-slate-400 mb-1">Compressed</span>
+                        <span id="stat-prompt-comp" class="block text-lg font-bold text-emerald-300 tabular-nums">--</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Token Display Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Original Tokens -->
+    <!-- Prompt Windows -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Original Prompt -->
         <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-xl overflow-hidden flex flex-col">
             <div class="flex justify-between items-center px-6 py-4 bg-slate-700/30 border-b border-slate-700/50">
-                <h2 class="text-lg font-semibold text-slate-200">Original Code</h2>
-                <span class="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-full text-sm font-medium border border-indigo-500/30">
-                    <span id="original-token-count">--</span> tokens
+                <h2 class="text-lg font-semibold text-slate-200">Original Prompt</h2>
+                <span class="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm font-medium border border-purple-500/30">
+                    <span id="original-prompt-token-count">--</span> tokens
                 </span>
             </div>
-            <div id="original-tokens-display" class="code-display p-4 overflow-auto" style="height: 400px;">
+            <div id="original-prompt-tokens-display" class="code-display p-4 overflow-auto" style="height: 400px;">
                 <div class="text-slate-400 text-center p-8">
                     <p>Click "Compress & Compare" to visualize tokens</p>
                 </div>
             </div>
         </div>
 
-        <!-- Compressed Tokens -->
+        <!-- Compressed Prompt -->
         <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-xl overflow-hidden flex flex-col">
             <div class="flex justify-between items-center px-6 py-4 bg-slate-700/30 border-b border-slate-700/50">
-                <h2 class="text-lg font-semibold text-slate-200">Compressed Code</h2>
+                <h2 class="text-lg font-semibold text-slate-200">Compressed Prompt</h2>
                 <span class="px-3 py-1 bg-emerald-500/20 text-emerald-300 rounded-full text-sm font-medium border border-emerald-500/30">
-                    <span id="compressed-token-count">--</span> tokens
+                    <span id="compressed-prompt-token-count">--</span> tokens
                 </span>
             </div>
-            <div id="compressed-tokens-display" class="code-display p-4 overflow-auto" style="height: 400px;">
+            <div id="compressed-prompt-tokens-display" class="code-display p-4 overflow-auto" style="height: 400px;">
+                <div class="text-slate-400 text-center p-8">
+                    <p>Click "Compress & Compare" to see compressed tokens</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Code Windows -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Original Code -->
+        <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-xl overflow-hidden flex flex-col">
+            <div class="flex justify-between items-center px-6 py-4 bg-slate-700/30 border-b border-slate-700/50">
+                <h2 class="text-lg font-semibold text-slate-200">Original Code</h2>
+                <span class="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-full text-sm font-medium border border-indigo-500/30">
+                    <span id="original-code-token-count">--</span> tokens
+                </span>
+            </div>
+            <div id="original-code-tokens-display" class="code-display p-4 overflow-auto" style="height: 400px;">
+                <div class="text-slate-400 text-center p-8">
+                    <p>Click "Compress & Compare" to visualize tokens</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compressed Code -->
+        <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-xl overflow-hidden flex flex-col">
+            <div class="flex justify-between items-center px-6 py-4 bg-slate-700/30 border-b border-slate-700/50">
+                <div class="flex items-center gap-2">
+                    <h2 class="text-lg font-semibold text-slate-200" id="compressed-code-title">Compressed Code</h2>
+                    <span id="elite-plus-badge" class="hidden px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded text-xs font-medium border border-purple-500/30">Elite+</span>
+                </div>
+                <span class="px-3 py-1 bg-emerald-500/20 text-emerald-300 rounded-full text-sm font-medium border border-emerald-500/30">
+                    <span id="compressed-code-token-count">--</span> tokens
+                </span>
+            </div>
+            <div id="compressed-code-tokens-display" class="code-display p-4 overflow-auto" style="height: 400px;">
                 <div class="text-slate-400 text-center p-8">
                     <p>Click "Compress & Compare" to see compressed tokens</p>
                 </div>
@@ -221,9 +371,55 @@
 {% block scripts %}
 <script>
     const codeInput = document.getElementById('code-input');
+    const promptInput = document.getElementById('prompt-input');
+    const ratioInput = document.getElementById('ratio-input');
+    const minWordsInput = document.getElementById('min-words-input');
+    const ratioValue = document.getElementById('ratio-value');
+    const minWordsValue = document.getElementById('min-words-value');
     const compressBtn = document.getElementById('compress-btn');
-    const originalDisplay = document.getElementById('original-tokens-display');
-    const compressedDisplay = document.getElementById('compressed-tokens-display');
+    const elitePlusToggle = document.getElementById('elite-plus-toggle');
+    const elitePlusStatus = document.getElementById('elite-plus-status');
+    const elitePlusStatusText = document.getElementById('elite-plus-status-text');
+    const originalPromptDisplay = document.getElementById('original-prompt-tokens-display');
+    const compressedPromptDisplay = document.getElementById('compressed-prompt-tokens-display');
+    const originalCodeDisplay = document.getElementById('original-code-tokens-display');
+    const compressedCodeDisplay = document.getElementById('compressed-code-tokens-display');
+    
+    // Check Elite+ availability on page load
+    fetch('/compress_combined', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: '', prompt: '', elite_plus: false })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.elite_plus_available) {
+            elitePlusStatus.classList.remove('hidden');
+            elitePlusStatusText.textContent = 'Elite+ compression is available';
+            elitePlusStatusText.className = 'text-emerald-400';
+        } else {
+            elitePlusStatus.classList.remove('hidden');
+            elitePlusStatusText.textContent = 'Elite+ compression is not available (Node.js required)';
+            elitePlusStatusText.className = 'text-amber-400';
+            elitePlusToggle.disabled = true;
+            elitePlusToggle.parentElement.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+    })
+    .catch(() => {
+        elitePlusStatus.classList.remove('hidden');
+        elitePlusStatusText.textContent = 'Unable to check Elite+ availability';
+        elitePlusStatusText.className = 'text-slate-400';
+    });
+
+    // Update ratio display
+    ratioInput.addEventListener('input', (e) => {
+        ratioValue.textContent = parseFloat(e.target.value).toFixed(2);
+    });
+
+    // Update min words display
+    minWordsInput.addEventListener('input', (e) => {
+        minWordsValue.textContent = e.target.value;
+    });
 
     // Synchronized scrolling
     let isSyncing = false;
@@ -245,8 +441,13 @@
         });
     }
 
-    originalDisplay.addEventListener('scroll', () => syncScroll(originalDisplay, compressedDisplay));
-    compressedDisplay.addEventListener('scroll', () => syncScroll(compressedDisplay, originalDisplay));
+    // Sync prompt windows
+    originalPromptDisplay.addEventListener('scroll', () => syncScroll(originalPromptDisplay, compressedPromptDisplay));
+    compressedPromptDisplay.addEventListener('scroll', () => syncScroll(compressedPromptDisplay, originalPromptDisplay));
+    
+    // Sync code windows
+    originalCodeDisplay.addEventListener('scroll', () => syncScroll(originalCodeDisplay, compressedCodeDisplay));
+    compressedCodeDisplay.addEventListener('scroll', () => syncScroll(compressedCodeDisplay, originalCodeDisplay));
 
     // Tooltip handling
     let tooltip = null;
@@ -333,9 +534,11 @@
     }
 
     compressBtn.addEventListener('click', async () => {
-        const code = codeInput.value;
-        if (!code.trim()) {
-            alert('Please enter some code first.');
+        const code = codeInput.value.trim();
+        const prompt = promptInput.value.trim();
+
+        if (!code && !prompt) {
+            alert('Please enter either C code or a prompt (or both).');
             return;
         }
 
@@ -343,23 +546,60 @@
         compressBtn.textContent = 'Compressing...';
 
         try {
-            const response = await fetch('/compress_c', {
+            const ratio = parseFloat(ratioInput.value);
+            const minWords = parseInt(minWordsInput.value);
+
+            const elitePlus = elitePlusToggle.checked;
+            
+            const response = await fetch('/compress_combined', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code: code })
+                body: JSON.stringify({
+                    code: code,
+                    prompt: prompt,
+                    ratio: ratio,
+                    min_words: minWords,
+                    elite_plus: elitePlus
+                })
             });
 
             const result = await response.json();
 
-            // Display original tokens
-            document.getElementById('original-token-count').textContent = result.original_tokens;
-            renderTokens(code, result.original_token_starts, originalDisplay);
+            // Display prompt tokens separately
+            if (prompt && result.prompt_original_token_starts && result.prompt_original_token_starts.length > 0) {
+                document.getElementById('original-prompt-token-count').textContent = result.prompt_original_tokens;
+                renderTokens(prompt, result.prompt_original_token_starts, originalPromptDisplay);
+            } else {
+                document.getElementById('original-prompt-token-count').textContent = '--';
+                originalPromptDisplay.innerHTML = '<div class="text-slate-400 text-center p-8"><p>No prompt provided</p></div>';
+            }
 
-            // Display compressed tokens
-            document.getElementById('compressed-token-count').textContent = result.compressed_tokens;
-            renderTokens(result.minimized_code, result.compressed_token_starts, compressedDisplay);
+            if (result.minimized_prompt && result.prompt_compressed_token_starts && result.prompt_compressed_token_starts.length > 0) {
+                document.getElementById('compressed-prompt-token-count').textContent = result.prompt_compressed_tokens;
+                renderTokens(result.minimized_prompt, result.prompt_compressed_token_starts, compressedPromptDisplay);
+            } else {
+                document.getElementById('compressed-prompt-token-count').textContent = '--';
+                compressedPromptDisplay.innerHTML = '<div class="text-slate-400 text-center p-8"><p>No prompt compressed</p></div>';
+            }
 
-            // Update stats
+            // Display code tokens separately
+            if (code && result.code_original_token_starts && result.code_original_token_starts.length > 0) {
+                document.getElementById('original-code-token-count').textContent = result.code_original_tokens;
+                renderTokens(code, result.code_original_token_starts, originalCodeDisplay);
+            } else {
+                document.getElementById('original-code-token-count').textContent = '--';
+                originalCodeDisplay.innerHTML = '<div class="text-slate-400 text-center p-8"><p>No code provided</p></div>';
+            }
+
+            if (result.minimized_code && result.code_compressed_token_starts && result.code_compressed_token_starts.length > 0) {
+                document.getElementById('compressed-code-token-count').textContent = result.code_compressed_tokens;
+                renderTokens(result.minimized_code, result.code_compressed_token_starts, compressedCodeDisplay);
+            } else {
+                document.getElementById('compressed-code-token-count').textContent = '--';
+                compressedCodeDisplay.innerHTML = '<div class="text-slate-400 text-center p-8"><p>No code compressed</p></div>';
+            }
+
+            // Update combined stats
             const statsPanel = document.getElementById('comparison-stats');
             statsPanel.classList.remove('hidden');
             document.getElementById('stat-orig').textContent = result.original_tokens;
@@ -367,12 +607,34 @@
             document.getElementById('stat-sav').textContent = result.savings;
             document.getElementById('stat-perc').textContent = result.savings_percentage + '%';
 
+            // Update separate stats
+            document.getElementById('stat-code-orig').textContent = result.code_original_tokens || '--';
+            document.getElementById('stat-code-comp').textContent = result.code_compressed_tokens || '--';
+            document.getElementById('stat-prompt-orig').textContent = result.prompt_original_tokens || '--';
+            document.getElementById('stat-prompt-comp').textContent = result.prompt_compressed_tokens || '--';
+
             // Show legend
             document.getElementById('legend').classList.remove('hidden');
+            
+            // Update Elite+ status if used
+            const elitePlusBadge = document.getElementById('elite-plus-badge');
+            if (result.elite_plus_used) {
+                elitePlusStatus.classList.remove('hidden');
+                elitePlusStatusText.textContent = '✓ Elite+ compression was applied';
+                elitePlusStatusText.className = 'text-emerald-400';
+                elitePlusBadge.classList.remove('hidden');
+            } else {
+                elitePlusBadge.classList.add('hidden');
+                if (elitePlus && code) {
+                    elitePlusStatus.classList.remove('hidden');
+                    elitePlusStatusText.textContent = '⚠ Elite+ compression requested but not available or failed';
+                    elitePlusStatusText.className = 'text-amber-400';
+                }
+            }
 
         } catch (error) {
             console.error('Compression failed:', error);
-            alert('Failed to compress code. Please try again.');
+            alert('Failed to compress. Please try again.');
         } finally {
             compressBtn.disabled = false;
             compressBtn.textContent = 'Compress & Compare';

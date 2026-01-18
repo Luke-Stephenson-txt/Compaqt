@@ -1,0 +1,6 @@
+{
+  "type": "module",
+  "name": "elite-plus-wrapper",
+  "version": "1.0.0",
+  "description": "Elite+ SIRCL encoder wrapper for Flask integration"
+}
