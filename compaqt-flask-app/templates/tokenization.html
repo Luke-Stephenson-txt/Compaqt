@@ -10,7 +10,7 @@
             Tokenization Visualization
         </h1>
         <p class="text-xl text-slate-300 max-w-3xl mx-auto mb-2">
-            Visualize how your code is tokenized using OpenAI's GPT-4o mini tokenizer
+            Visualize how your code is tokenized and compressed
         </p>
         <div class="bg-indigo-500/20 border border-indigo-500/50 rounded-lg p-3 max-w-2xl mx-auto mt-4">
             <p class="text-indigo-300 text-sm">
@@ -23,24 +23,18 @@
     <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 mb-8 border border-slate-700/50 shadow-xl">
         <div class="mb-4">
             <label for="code-input" class="block text-sm font-medium text-slate-300 mb-2">
-                Enter Your Code
+                Enter Your C Code
             </label>
-            <textarea 
-                id="code-input" 
-                rows="10" 
+            <textarea
+                id="code-input"
+                rows="10"
                 class="w-full bg-slate-900/50 border border-slate-700/50 rounded-lg p-4 text-slate-200 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                placeholder="Enter your code here...&#10;&#10;Example:&#10;def hello_world():&#10;    # This is a comment&#10;    print(&quot;Hello, World!&quot;)"
+                placeholder="Enter your C code here...&#10;&#10;Example:&#10;#include <stdio.h>&#10;&#10;// Hello world program&#10;int main() {&#10;    printf(&quot;Hello, World!\n&quot;);&#10;    return 0;&#10;}"
             ></textarea>
         </div>
         <div class="flex flex-wrap gap-4">
-            <button 
-                id="tokenize-btn" 
-                class="px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-indigo-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-                Tokenize
-            </button>
-            <button 
-                id="compress-btn" 
+            <button
+                id="compress-btn"
                 class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-emerald-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 Compress & Compare
@@ -48,54 +42,24 @@
         </div>
     </div>
 
-    <!-- Token Display Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Original Tokens -->
-        <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-xl overflow-hidden flex flex-col max-h-[600px]">
-            <div class="flex justify-between items-center px-6 py-4 bg-slate-700/30 border-b border-slate-700/50">
-                <h2 class="text-lg font-semibold text-slate-200">Original Tokens</h2>
-                <span class="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-full text-sm font-medium border border-indigo-500/30">
-                    <span id="original-token-count">--</span> tokens
-                </span>
-            </div>
-            <div id="original-tokens-display" class="p-4 flex-1 overflow-y-auto scrollbar-thin">
-                <div class="text-slate-400 text-center p-8">
-                    <p>Click "Tokenize" to visualize tokens</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Compressed Tokens -->
-        <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-xl overflow-hidden flex flex-col max-h-[600px]" id="compressed-section">
-            <div class="flex justify-between items-center px-6 py-4 bg-slate-700/30 border-b border-slate-700/50">
-                <h2 class="text-lg font-semibold text-slate-200">Compressed Tokens</h2>
-                <span class="px-3 py-1 bg-emerald-500/20 text-emerald-300 rounded-full text-sm font-medium border border-emerald-500/30">
-                    <span id="compressed-token-count">--</span> tokens
-                </span>
-            </div>
-            <div id="compressed-tokens-display" class="p-4 flex-1 overflow-y-auto scrollbar-thin">
-                <div class="text-slate-400 text-center p-8">
-                    <p>Click "Compress & Compare" to see compressed tokens</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Comparison Stats -->
-    <div id="comparison-stats" class="hidden mt-6 bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 shadow-xl animate-fade-in">
-        <h3 class="text-xl font-semibold mb-4 text-indigo-400">Token Comparison</h3>
+    <!-- Comparison Stats (moved above for context) -->
+    <div id="comparison-stats" class="hidden mb-6 bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 shadow-xl animate-fade-in">
+        <h3 class="text-xl font-semibold mb-4 text-indigo-400">Compression Results</h3>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div class="bg-slate-900/50 p-4 rounded-lg text-center border border-slate-700/30">
                 <span class="block text-xs text-slate-400 mb-2">Original</span>
                 <span id="stat-orig" class="block text-2xl font-bold text-indigo-400 tabular-nums">--</span>
+                <span class="block text-xs text-slate-500">tokens</span>
             </div>
             <div class="bg-slate-900/50 p-4 rounded-lg text-center border border-slate-700/30">
                 <span class="block text-xs text-slate-400 mb-2">Compressed</span>
                 <span id="stat-comp" class="block text-2xl font-bold text-emerald-400 tabular-nums">--</span>
+                <span class="block text-xs text-slate-500">tokens</span>
             </div>
             <div class="bg-slate-900/50 p-4 rounded-lg text-center border border-slate-700/30">
                 <span class="block text-xs text-slate-400 mb-2">Saved</span>
                 <span id="stat-sav" class="block text-2xl font-bold text-purple-400 tabular-nums">--</span>
+                <span class="block text-xs text-slate-500">tokens</span>
             </div>
             <div class="bg-slate-900/50 p-4 rounded-lg text-center border border-slate-700/30">
                 <span class="block text-xs text-slate-400 mb-2">Reduction</span>
@@ -103,92 +67,274 @@
             </div>
         </div>
     </div>
+
+    <!-- Token Display Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Original Tokens -->
+        <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-xl overflow-hidden flex flex-col">
+            <div class="flex justify-between items-center px-6 py-4 bg-slate-700/30 border-b border-slate-700/50">
+                <h2 class="text-lg font-semibold text-slate-200">Original Code</h2>
+                <span class="px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-full text-sm font-medium border border-indigo-500/30">
+                    <span id="original-token-count">--</span> tokens
+                </span>
+            </div>
+            <div id="original-tokens-display" class="code-display p-4 overflow-auto" style="height: 400px;">
+                <div class="text-slate-400 text-center p-8">
+                    <p>Click "Compress & Compare" to visualize tokens</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compressed Tokens -->
+        <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-xl overflow-hidden flex flex-col">
+            <div class="flex justify-between items-center px-6 py-4 bg-slate-700/30 border-b border-slate-700/50">
+                <h2 class="text-lg font-semibold text-slate-200">Compressed Code</h2>
+                <span class="px-3 py-1 bg-emerald-500/20 text-emerald-300 rounded-full text-sm font-medium border border-emerald-500/30">
+                    <span id="compressed-token-count">--</span> tokens
+                </span>
+            </div>
+            <div id="compressed-tokens-display" class="code-display p-4 overflow-auto" style="height: 400px;">
+                <div class="text-slate-400 text-center p-8">
+                    <p>Click "Compress & Compare" to see compressed tokens</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legend -->
+    <div id="legend" class="hidden mt-6 bg-slate-800/60 backdrop-blur-sm rounded-xl p-4 border border-slate-700/50">
+        <p class="text-sm text-slate-400 text-center">
+            Each colored segment represents one token. Hover over tokens to see details. Both panels scroll together for easy comparison.
+        </p>
+    </div>
 </div>
 
 <style>
-.token-bubble {
-    display: inline-block;
-    background: rgba(99, 102, 241, 0.2);
-    border: 1px solid rgba(99, 102, 241, 0.4);
-    color: #818cf8;
-    padding: 0.25rem 0.5rem;
-    margin: 0.125rem;
-    border-radius: 0.375rem;
-    font-size: 0.75rem;
+.code-display {
+    background: #0d1117;
+    border-radius: 0.5rem;
+}
+
+.code-display pre {
+    margin: 0;
+    font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.token {
+    padding: 2px 0;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    position: relative;
+}
+
+.token:hover {
+    filter: brightness(1.3);
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+    outline-offset: 1px;
+}
+
+/* Token color palette - distinct, readable colors */
+.token-0  { background: rgba(239, 68, 68, 0.3); color: #fca5a5; }
+.token-1  { background: rgba(249, 115, 22, 0.3); color: #fdba74; }
+.token-2  { background: rgba(234, 179, 8, 0.3); color: #fde047; }
+.token-3  { background: rgba(132, 204, 22, 0.3); color: #bef264; }
+.token-4  { background: rgba(34, 197, 94, 0.3); color: #86efac; }
+.token-5  { background: rgba(20, 184, 166, 0.3); color: #5eead4; }
+.token-6  { background: rgba(6, 182, 212, 0.3); color: #67e8f9; }
+.token-7  { background: rgba(59, 130, 246, 0.3); color: #93c5fd; }
+.token-8  { background: rgba(99, 102, 241, 0.3); color: #a5b4fc; }
+.token-9  { background: rgba(139, 92, 246, 0.3); color: #c4b5fd; }
+.token-10 { background: rgba(168, 85, 247, 0.3); color: #d8b4fe; }
+.token-11 { background: rgba(217, 70, 239, 0.3); color: #f0abfc; }
+.token-12 { background: rgba(236, 72, 153, 0.3); color: #f9a8d4; }
+.token-13 { background: rgba(244, 63, 94, 0.3); color: #fda4af; }
+.token-14 { background: rgba(251, 146, 60, 0.3); color: #fed7aa; }
+.token-15 { background: rgba(163, 230, 53, 0.3); color: #d9f99d; }
+
+/* Whitespace visualization */
+.token-space {
+    background: rgba(100, 116, 139, 0.2);
+    color: #64748b;
+}
+
+.token-newline {
+    display: block;
+    width: 100%;
+}
+
+/* Tooltip */
+.token-tooltip {
+    position: fixed;
+    background: #1e293b;
+    border: 1px solid #475569;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #e2e8f0;
+    pointer-events: none;
+    z-index: 1000;
+    max-width: 300px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.token-tooltip .token-index {
+    color: #94a3b8;
+    font-size: 10px;
+    margin-bottom: 4px;
+}
+
+.token-tooltip .token-content {
     font-family: 'Fira Code', monospace;
+    background: #0f172a;
+    padding: 4px 8px;
+    border-radius: 4px;
     word-break: break-all;
 }
-.token-bubble-compressed {
-    background: rgba(16, 185, 129, 0.2);
-    border-color: rgba(16, 185, 129, 0.4);
-    color: #34d399;
+
+/* Scrollbar styling */
+.code-display::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.code-display::-webkit-scrollbar-track {
+    background: #1e293b;
+    border-radius: 4px;
+}
+
+.code-display::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 4px;
+}
+
+.code-display::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
 }
 </style>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    let tokensData = null;
-
     const codeInput = document.getElementById('code-input');
-    const tokenizeBtn = document.getElementById('tokenize-btn');
     const compressBtn = document.getElementById('compress-btn');
-    const originalTokensDisplay = document.getElementById('original-tokens-display');
-    const compressedTokensDisplay = document.getElementById('compressed-tokens-display');
+    const originalDisplay = document.getElementById('original-tokens-display');
+    const compressedDisplay = document.getElementById('compressed-tokens-display');
 
-    function renderTokens(code, token_starts, container, isCompressed=false) {
-        console.log(token_starts);
+    // Synchronized scrolling
+    let isSyncing = false;
 
-        if (token_starts.length === 0) {
+    function syncScroll(source, target) {
+        if (isSyncing) return;
+        isSyncing = true;
+
+        const sourceMaxScrollTop = source.scrollHeight - source.clientHeight;
+        const targetMaxScrollTop = target.scrollHeight - target.clientHeight;
+
+        if (sourceMaxScrollTop > 0) {
+            const scrollRatio = source.scrollTop / sourceMaxScrollTop;
+            target.scrollTop = scrollRatio * targetMaxScrollTop;
+        }
+
+        requestAnimationFrame(() => {
+            isSyncing = false;
+        });
+    }
+
+    originalDisplay.addEventListener('scroll', () => syncScroll(originalDisplay, compressedDisplay));
+    compressedDisplay.addEventListener('scroll', () => syncScroll(compressedDisplay, originalDisplay));
+
+    // Tooltip handling
+    let tooltip = null;
+
+    function showTooltip(e, tokenIndex, tokenText) {
+        if (!tooltip) {
+            tooltip = document.createElement('div');
+            tooltip.className = 'token-tooltip';
+            document.body.appendChild(tooltip);
+        }
+
+        // Escape HTML and show special characters
+        const displayText = tokenText
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\n/g, '\\n')
+            .replace(/\t/g, '\\t')
+            .replace(/ /g, '·');
+
+        tooltip.innerHTML = `
+            <div class="token-index">Token #${tokenIndex}</div>
+            <div class="token-content">${displayText}</div>
+        `;
+
+        tooltip.style.left = (e.clientX + 10) + 'px';
+        tooltip.style.top = (e.clientY + 10) + 'px';
+        tooltip.style.display = 'block';
+    }
+
+    function hideTooltip() {
+        if (tooltip) {
+            tooltip.style.display = 'none';
+        }
+    }
+
+    function escapeHtml(text) {
+        return text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    function renderTokens(code, tokenStarts, container) {
+        if (!tokenStarts || tokenStarts.length === 0) {
             container.innerHTML = '<div class="text-slate-400 text-center p-8"><p>No tokens to display</p></div>';
             return;
         }
 
-        const bubbleClass = isCompressed ? 'token-bubble token-bubble-compressed' : 'token-bubble';
-        container.innerHTML = token_starts.map(
-            (start, i) => {
-                end = i == token_starts.length - 1 ? code.length : token_starts[i+1];
-                return `<span class="${bubbleClass}">${code.substring(start, end)}</span>`
-            }
-        ).join('');
+        const pre = document.createElement('pre');
+        let html = '';
+
+        tokenStarts.forEach((start, i) => {
+            const end = i === tokenStarts.length - 1 ? code.length : tokenStarts[i + 1];
+            const tokenText = code.substring(start, end);
+            const colorClass = `token-${i % 16}`;
+            const escapedText = escapeHtml(tokenText);
+
+            html += `<span class="token ${colorClass}" data-index="${i}" data-text="${escapeHtml(tokenText)}">${escapedText}</span>`;
+        });
+
+        pre.innerHTML = html;
+        container.innerHTML = '';
+        container.appendChild(pre);
+
+        // Add event listeners for tooltips
+        container.querySelectorAll('.token').forEach(token => {
+            token.addEventListener('mouseenter', (e) => {
+                const index = token.dataset.index;
+                const start = tokenStarts[index];
+                const end = index == tokenStarts.length - 1 ? code.length : tokenStarts[parseInt(index) + 1];
+                const text = code.substring(start, end);
+                showTooltip(e, index, text);
+            });
+            token.addEventListener('mousemove', (e) => {
+                if (tooltip) {
+                    tooltip.style.left = (e.clientX + 10) + 'px';
+                    tooltip.style.top = (e.clientY + 10) + 'px';
+                }
+            });
+            token.addEventListener('mouseleave', hideTooltip);
+        });
     }
 
-    tokenizeBtn.addEventListener('click', async () => {
-        const code = codeInput.value.trim();
-        if (!code) {
-            alert('Please enter some code first.');
-            return;
-        }
-
-        tokenizeBtn.disabled = true;
-        tokenizeBtn.textContent = 'Tokenizing...';
-
-        try {
-            const response = await fetch('/token_starts', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code: code })
-            });
-
-            const result = await response.json();
-            console.log(result);
-            document.getElementById('original-token-count').textContent = result.token_starts.length;
-            renderTokens(code, result.token_starts, originalTokensDisplay);
-            
-            tokensData = { original: result };
-
-        } catch (error) {
-            console.error('Tokenization failed:', error);
-            alert('Failed to tokenize code. Please try again.');
-        } finally {
-            tokenizeBtn.disabled = false;
-            tokenizeBtn.textContent = 'Tokenize';
-        }
-    });
-
     compressBtn.addEventListener('click', async () => {
-        const code = codeInput.value.trim();
-        if (!code) {
+        const code = codeInput.value;
+        if (!code.trim()) {
             alert('Please enter some code first.');
             return;
         }
@@ -204,10 +350,15 @@
             });
 
             const result = await response.json();
-            
+
+            // Display original tokens
+            document.getElementById('original-token-count').textContent = result.original_tokens;
+            renderTokens(result.original_code, result.original_token_starts, originalDisplay);
+
+            // Display compressed tokens
             document.getElementById('compressed-token-count').textContent = result.compressed_tokens;
-            renderTokens(result.compressed_token_list, compressedTokensDisplay, true);
-            
+            renderTokens(result.minimized_code, result.compressed_token_starts, compressedDisplay);
+
             // Update stats
             const statsPanel = document.getElementById('comparison-stats');
             statsPanel.classList.remove('hidden');
@@ -216,20 +367,8 @@
             document.getElementById('stat-sav').textContent = result.savings;
             document.getElementById('stat-perc').textContent = result.savings_percentage + '%';
 
-            // If not already tokenized, tokenize original
-            if (!tokensData || !tokensData.original) {
-                const tokenizeResponse = await fetch('/tokenize', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ code: code })
-                });
-                const tokenizeResult = await tokenizeResponse.json();
-                document.getElementById('original-token-count').textContent = tokenizeResult.token_count;
-                renderTokens(tokenizeResult.tokens, originalTokensDisplay);
-                tokensData = { original: tokenizeResult };
-            }
-
-            tokensData.compressed = result;
+            // Show legend
+            document.getElementById('legend').classList.remove('hidden');
 
         } catch (error) {
             console.error('Compression failed:', error);

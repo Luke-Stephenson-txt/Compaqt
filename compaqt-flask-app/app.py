@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, jsonify, Response
+from flask import Flask, render_template, request, jsonify, Response, abort
 import os
-#from compaqt.packer import pack_files, minimize_code
 from compaqt.tokenizer import Tokenizer
+from compaqt.minify import minify_c
+from compaqt.examples_data import get_all_examples, get_example_by_id
 import json
 
 app = Flask(__name__)
@@ -23,38 +24,17 @@ def about():
 @app.route('/examples')
 def examples():
     """Examples page with demos."""
-    # Example data - could be loaded from a file or database
-    examples_data = [
-        {
-            'name': 'Web Application Stack',
-            'description': 'Full-stack web application with frontend and backend code',
-            'before_tokens': 15230,
-            'after_tokens': 8734,
-            'files': 12
-        },
-        {
-            'name': 'Data Processing Pipeline',
-            'description': 'Python data processing scripts with data cleaning and analysis',
-            'before_tokens': 9876,
-            'after_tokens': 5234,
-            'files': 8
-        },
-        {
-            'name': 'API Microservices',
-            'description': 'RESTful API services with authentication and database connections',
-            'before_tokens': 12456,
-            'after_tokens': 7654,
-            'files': 15
-        },
-        {
-            'name': 'Machine Learning Models',
-            'description': 'ML model training and inference code with preprocessing',
-            'before_tokens': 18345,
-            'after_tokens': 10234,
-            'files': 10
-        }
-    ]
+    examples_data = get_all_examples()
     return render_template('examples.html', examples=examples_data)
+
+
+@app.route('/example/<example_id>')
+def example_detail(example_id):
+    """Detailed view of a specific example."""
+    example = get_example_by_id(example_id)
+    if example is None:
+        abort(404)
+    return render_template('example_detail.html', example=example)
 
 
 @app.route('/tokenization')
@@ -68,20 +48,21 @@ def developers():
     """Meet the Developers page."""
     developers_data = [
         {
-            'name': 'Your Name',
-            'role': 'Lead Developer',
-            'bio': 'Passionate about building efficient AI tools and optimizing developer workflows. Focused on making LLM integrations more cost-effective and performant.',
-            'github': 'https://github.com/yourusername',
-            'linkedin': 'https://linkedin.com/in/yourprofile',
-            'avatar': '👨‍💻'
+            'name': 'Luke Stephenson',
+            'role': 'Developer',
+            'bio': 'Freshman at Case Western Reserve University studying Electrical Engineering and Computer Engineering.',
+            'github': 'https://github.com/Luke-Stephenson-txt',
+            'linkedin': 'https://www.linkedin.com/in/luke-e-stephenson/',
+            'image': 'luke-stephenson.png'
         },
         {
-            'name': 'Co-Developer',
-            'role': 'Full Stack Developer',
-            'bio': 'Specializes in backend systems and prompt engineering. Enthusiastic about creating developer tools that reduce complexity and improve productivity.',
-            'github': 'https://github.com/codeveloper',
-            'linkedin': 'https://linkedin.com/in/codeveloper',
-            'avatar': '👩‍💻'
+            'name': 'Ian Dvorin',
+            'role': 'Developer',
+            'bio': 'Freshman at Case Western Reserve University studying Electrical Engineering and Computer Science.',
+            'github': 'https://github.com/magicalbat',
+            'linkedin': 'https://www.linkedin.com/in/ian-dvorin-7b4a84395/',
+            'youtube': 'https://www.youtube.com/@Magicalbat',
+            'image': 'ian-dvorin.jpg'
         }
     ]
     return render_template('developers.html', developers=developers_data)
@@ -118,37 +99,25 @@ def compress():
     """Compress/minimize code and return token comparison."""
     data = request.get_json()
     code = data.get('code', '')
-    
+
     # Get original tokens
     original_tokens = tokenizer.num_tokens(code)
-    
-    # Minimize code
-    minimized_code = code#minimize_code(code)
+    original_token_starts = tokenizer.token_starts(code)
+
+    # Minimize code using minify_c
+    minimized_code = minify_c(code)
     compressed_tokens = tokenizer.num_tokens(minimized_code)
-    
-    # Get token lists
-    try:
-        import tiktoken
-        encoding = tiktoken.get_encoding("cl100k_base")
-        
-        orig_tokens = encoding.encode(code)
-        orig_token_list = [encoding.decode_single_token_bytes(t).decode('utf-8', errors='ignore') for t in orig_tokens[:500]]
-        
-        comp_tokens = encoding.encode(minimized_code)
-        comp_token_list = [encoding.decode_single_token_bytes(t).decode('utf-8', errors='ignore') for t in comp_tokens[:500]]
-    except:
-        orig_token_list = code.split()[:500]
-        comp_token_list = minimized_code.split()[:500]
-    
+    compressed_token_starts = tokenizer.token_starts(minimized_code)
+
     return jsonify({
         'original_code': code,
         'minimized_code': minimized_code,
         'original_tokens': original_tokens,
         'compressed_tokens': compressed_tokens,
+        'original_token_starts': original_token_starts,
+        'compressed_token_starts': compressed_token_starts,
         'savings': original_tokens - compressed_tokens,
-        'savings_percentage': round((1 - compressed_tokens / original_tokens) * 100, 1) if original_tokens > 0 else 0,
-        'original_token_list': orig_token_list,
-        'compressed_token_list': comp_token_list
+        'savings_percentage': round((1 - compressed_tokens / original_tokens) * 100, 1) if original_tokens > 0 else 0
     })
 
 

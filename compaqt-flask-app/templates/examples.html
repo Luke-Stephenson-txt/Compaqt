@@ -59,9 +59,9 @@
                 </div>
             </div>
             
-            <button class="w-full px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-indigo-500/50" onclick="alert('Example viewer coming soon!')">
+            <a href="{{ url_for('example_detail', example_id=example.id) }}" class="block w-full px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-indigo-500/50 text-center">
                 View Example
-            </button>
+            </a>
         </div>
         {% endfor %}
     </div>

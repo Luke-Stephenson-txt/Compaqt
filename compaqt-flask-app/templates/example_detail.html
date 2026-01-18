@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+
+{% block title %}{{ example.name }} - Compaqt{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Back Button -->
+    <a href="{{ url_for('examples') }}" class="inline-flex items-center text-slate-400 hover:text-indigo-400 mb-6 transition-colors">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+        Back to Examples
+    </a>
+
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl md:text-4xl font-bold mb-3 bg-gradient-to-r from-indigo-500 via-purple-400 to-purple-600 bg-clip-text text-transparent">
+            {{ example.name }}
+        </h1>
+        <p class="text-lg text-slate-300">{{ example.description }}</p>
+    </div>
+
+    <!-- Task/Question Section -->
+    <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 mb-6 border border-slate-700/50 shadow-xl">
+        <h2 class="text-xl font-semibold text-indigo-400 mb-4">Task Description</h2>
+        <h3 class="text-lg font-medium text-slate-200 mb-3">{{ example.question.title }}</h3>
+        <div class="bg-slate-900/50 rounded-lg p-4 border border-slate-700/30">
+            <pre class="text-slate-300 text-sm whitespace-pre-wrap font-sans">{{ example.question.problem }}</pre>
+        </div>
+    </div>
+
+    <!-- Metrics Overview -->
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
+        <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl p-4 border border-slate-700/50 text-center">
+            <span class="block text-xs text-slate-400 mb-1">Original Tokens</span>
+            <span class="block text-2xl font-bold text-amber-400 tabular-nums">{{ "{:,}".format(example.metrics.original_tokens) }}</span>
+        </div>
+        <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl p-4 border border-slate-700/50 text-center">
+            <span class="block text-xs text-slate-400 mb-1">Packed Tokens</span>
+            <span class="block text-2xl font-bold text-emerald-400 tabular-nums">{{ "{:,}".format(example.metrics.packed_tokens) }}</span>
+        </div>
+        <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl p-4 border border-slate-700/50 text-center">
+            <span class="block text-xs text-slate-400 mb-1">Savings</span>
+            <span class="block text-2xl font-bold text-purple-400 tabular-nums">{{ example.metrics.savings_percent }}%</span>
+        </div>
+        <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl p-4 border border-slate-700/50 text-center">
+            <span class="block text-xs text-slate-400 mb-1">Compression</span>
+            <span class="block text-2xl font-bold text-indigo-400 tabular-nums">{{ example.metrics.compression_ratio }}</span>
+        </div>
+        <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl p-4 border border-slate-700/50 text-center">
+            <span class="block text-xs text-slate-400 mb-1">Files</span>
+            <span class="block text-2xl font-bold text-cyan-400 tabular-nums">{{ example.metrics.files_included }}</span>
+        </div>
+        <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl p-4 border border-slate-700/50 text-center">
+            <span class="block text-xs text-slate-400 mb-1">Inclusion Rate</span>
+            <span class="block text-2xl font-bold text-pink-400 tabular-nums">{{ example.metrics.inclusion_rate }}%</span>
+        </div>
+    </div>
+
+    <!-- Cost Analysis -->
+    <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 mb-6 border border-slate-700/50 shadow-xl">
+        <h2 class="text-xl font-semibold text-indigo-400 mb-4">Cost Analysis</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-slate-900/50 rounded-lg p-4 border border-slate-700/30">
+                <h3 class="text-sm font-medium text-slate-400 mb-3">Original Cost</h3>
+                <div class="space-y-2">
+                    <div class="flex justify-between">
+                        <span class="text-slate-400 text-sm">Input ({{ "{:,}".format(example.metrics.original_tokens) }} tokens)</span>
+                        <span class="text-amber-400 font-mono">${{ "%.6f"|format(example.cost_analysis.original_input_cost) }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400 text-sm">Output ({{ "{:,}".format(example.cost_analysis.output_tokens) }} tokens)</span>
+                        <span class="text-amber-400 font-mono">${{ "%.6f"|format(example.cost_analysis.output_tokens * example.cost_analysis.output_price_per_million / 1000000) }}</span>
+                    </div>
+                    <div class="border-t border-slate-700/50 pt-2 flex justify-between">
+                        <span class="text-slate-300 font-medium">Total</span>
+                        <span class="text-amber-400 font-mono font-bold">${{ "%.6f"|format(example.cost_analysis.original_input_cost + example.cost_analysis.output_tokens * example.cost_analysis.output_price_per_million / 1000000) }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-slate-900/50 rounded-lg p-4 border border-emerald-500/30">
+                <h3 class="text-sm font-medium text-slate-400 mb-3">Packed Cost</h3>
+                <div class="space-y-2">
+                    <div class="flex justify-between">
+                        <span class="text-slate-400 text-sm">Input ({{ "{:,}".format(example.metrics.packed_tokens) }} tokens)</span>
+                        <span class="text-emerald-400 font-mono">${{ "%.6f"|format(example.cost_analysis.packed_input_cost) }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400 text-sm">Output ({{ "{:,}".format(example.cost_analysis.output_tokens) }} tokens)</span>
+                        <span class="text-emerald-400 font-mono">${{ "%.6f"|format(example.cost_analysis.output_tokens * example.cost_analysis.output_price_per_million / 1000000) }}</span>
+                    </div>
+                    <div class="border-t border-slate-700/50 pt-2 flex justify-between">
+                        <span class="text-slate-300 font-medium">Total</span>
+                        <span class="text-emerald-400 font-mono font-bold">${{ "%.6f"|format(example.cost_analysis.packed_input_cost + example.cost_analysis.output_tokens * example.cost_analysis.output_price_per_million / 1000000) }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gradient-to-br from-purple-500/20 to-indigo-500/20 rounded-lg p-4 border border-purple-500/30">
+                <h3 class="text-sm font-medium text-slate-400 mb-3">Savings</h3>
+                <div class="space-y-2">
+                    <div class="flex justify-between">
+                        <span class="text-slate-400 text-sm">Per Request</span>
+                        <span class="text-purple-400 font-mono">${{ "%.6f"|format(example.cost_analysis.input_savings) }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400 text-sm">Per 1,000 Requests</span>
+                        <span class="text-purple-400 font-mono">${{ "%.4f"|format(example.cost_analysis.input_savings * 1000) }}</span>
+                    </div>
+                    <div class="border-t border-slate-700/50 pt-2 flex justify-between">
+                        <span class="text-slate-300 font-medium">Per 1M Requests</span>
+                        <span class="text-purple-400 font-mono font-bold">${{ "%.2f"|format(example.cost_analysis.input_savings * 1000000) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Files Included (Expandable) -->
+    {% if example.file_details %}
+    <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 mb-6 border border-slate-700/50 shadow-xl">
+        <h2 class="text-xl font-semibold text-indigo-400 mb-4">Files Included ({{ example.file_details|length }})</h2>
+        <p class="text-slate-400 text-sm mb-4">Click on a file to expand and see the original vs compressed code comparison.</p>
+
+        <div class="space-y-3">
+            {% for file in example.file_details %}
+            <div class="file-accordion bg-slate-900/50 rounded-lg border border-slate-700/30 overflow-hidden">
+                <!-- File Header (Clickable) -->
+                <button
+                    class="file-header w-full px-4 py-3 flex items-center justify-between text-left hover:bg-slate-800/50 transition-colors"
+                    onclick="toggleFile('file-{{ loop.index }}')"
+                >
+                    <div class="flex items-center flex-1 min-w-0">
+                        <svg class="file-chevron w-5 h-5 text-slate-400 mr-3 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                        <div class="min-w-0 flex-1">
+                            <code class="text-cyan-400 text-sm font-medium">{{ file.name }}</code>
+                            <p class="text-slate-500 text-xs truncate">{{ file.path }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center ml-4 space-x-4">
+                        {% if file.description %}
+                        <span class="text-slate-400 text-xs hidden sm:block">{{ file.description }}</span>
+                        {% endif %}
+                        <div class="flex items-center">
+                            <div class="w-16 bg-slate-700/50 rounded-full h-1.5 mr-2">
+                                <div class="bg-gradient-to-r from-indigo-500 to-purple-500 h-1.5 rounded-full" style="width: {{ file.relevance * 100 }}%"></div>
+                            </div>
+                            <span class="text-xs font-medium text-indigo-400 tabular-nums w-8">{{ "%.0f"|format(file.relevance * 100) }}%</span>
+                        </div>
+                    </div>
+                </button>
+
+                <!-- File Content (Expandable) -->
+                <div id="file-{{ loop.index }}" class="file-content hidden">
+                    <div class="border-t border-slate-700/30">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-slate-700/30">
+                            <!-- Original Code -->
+                            <div class="p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-amber-400">Original</span>
+                                    <span class="px-2 py-0.5 bg-amber-500/20 text-amber-300 rounded text-xs">formatted</span>
+                                </div>
+                                <div class="bg-slate-950 rounded-lg overflow-hidden">
+                                    <pre class="p-3 text-xs text-slate-300 overflow-x-auto max-h-96"><code>{{ file.original }}</code></pre>
+                                </div>
+                            </div>
+                            <!-- Compressed Code -->
+                            <div class="p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-emerald-400">Compressed</span>
+                                    <span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded text-xs">minified</span>
+                                </div>
+                                <div class="bg-slate-950 rounded-lg overflow-hidden">
+                                    <pre class="p-3 text-xs text-slate-300 overflow-x-auto max-h-96"><code>{{ file.compressed }}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- What Was Removed -->
+    <div class="bg-slate-800/60 backdrop-blur-sm rounded-xl p-6 mb-6 border border-slate-700/50 shadow-xl">
+        <h2 class="text-xl font-semibold text-indigo-400 mb-4">Compression Details</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-slate-900/50 rounded-lg p-4 border border-slate-700/30">
+                <div class="flex items-center mb-2">
+                    <svg class="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                    <span class="text-slate-200 font-medium">Comments Removed</span>
+                </div>
+                <p class="text-slate-400 text-sm">All single-line (//) and block (/* */) comments are stripped</p>
+            </div>
+            <div class="bg-slate-900/50 rounded-lg p-4 border border-slate-700/30">
+                <div class="flex items-center mb-2">
+                    <svg class="w-5 h-5 text-yellow-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
+                    </svg>
+                    <span class="text-slate-200 font-medium">Whitespace Minimized</span>
+                </div>
+                <p class="text-slate-400 text-sm">Extra spaces, tabs, and newlines removed while preserving syntax</p>
+            </div>
+            <div class="bg-slate-900/50 rounded-lg p-4 border border-slate-700/30">
+                <div class="flex items-center mb-2">
+                    <svg class="w-5 h-5 text-green-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="text-slate-200 font-medium">Code Preserved</span>
+                </div>
+                <p class="text-slate-400 text-sm">Strings, preprocessor directives, and logic remain intact</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-2xl p-8 border border-indigo-500/30 text-center">
+        <h2 class="text-2xl font-bold mb-4 text-slate-100">Try It Yourself</h2>
+        <p class="text-lg text-slate-300 mb-6">
+            See how Compaqt compresses your own code in real-time
+        </p>
+        <a href="{{ url_for('tokenization') }}" class="inline-block px-8 py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-indigo-500/50">
+            Try Tokenization
+        </a>
+    </div>
+</div>
+
+<style>
+.file-accordion .file-chevron {
+    transform: rotate(0deg);
+}
+.file-accordion.expanded .file-chevron {
+    transform: rotate(90deg);
+}
+.file-content pre {
+    font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+    line-height: 1.5;
+}
+.file-content pre code {
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleFile(fileId) {
+    const content = document.getElementById(fileId);
+    const accordion = content.closest('.file-accordion');
+
+    if (content.classList.contains('hidden')) {
+        // Close all other open files
+        document.querySelectorAll('.file-content:not(.hidden)').forEach(el => {
+            el.classList.add('hidden');
+            el.closest('.file-accordion').classList.remove('expanded');
+        });
+
+        // Open this file
+        content.classList.remove('hidden');
+        accordion.classList.add('expanded');
+    } else {
+        // Close this file
+        content.classList.add('hidden');
+        accordion.classList.remove('expanded');
+    }
+}
+</script>
+{% endblock %}
